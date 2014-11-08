@@ -10,3 +10,36 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# project settings
+#editor/plugins/net.mindengine.galen.dsl.ui/.classpath
+#editor/plugins/net.mindengine.galen.dsl.ui/.project
+editor/plugins/net.mindengine.galen.dsl.ui/plugin.xml_gen
+#editor/plugins/net.mindengine.galen.dsl.ui/.settings/*
+#editor/plugins/net.mindengine.galen.dsl/.classpath
+#editor/plugins/net.mindengine.galen.dsl/.project
+editor/plugins/net.mindengine.galen.dsl/plugin.xml_gen
+#editor/plugins/net.mindengine.galen.dsl/.settings/*
+#editor/tests/net.mindengine.galen.dsl.tests/.project
+#editor/tests/net.mindengine.galen.dsl.tests/.classpath
+editor/tests/net.mindengine.galen.dsl.tests/plugin.xml_gen
+#editor/tests/net.mindengine.galen.dsl.tests/.settings/*
+
+# generated sources
+editor/plugins/net.mindengine.galen.dsl/src-gen/*
+editor/plugins/net.mindengine.galen.dsl/xtend-gen/*
+editor/plugins/net.mindengine.galen.dsl.ui/src-gen/*
+editor/plugins/net.mindengine.galen.dsl.ui/xtend-gen/*
+editor/plugins/net.mindengine.galen.dsl/model/generated/*
+editor/plugins/net.mindengine.galen.dsl/src-gen/*
+editor/plugins/net.mindengine.galen.dsl/xtend-gen/*
+editor/tests/net.mindengine.galen.dsl.tests/src-gen/*
+editor/tests/net.mindengine.galen.dsl.tests/xtend-gen/*
+
+# build target
+editor/plugins/net.mindengine.galen.dsl/bin/*
+editor/plugins/net.mindengine.galen.dsl/target/*
+editor/plugins/net.mindengine.galen.dsl.ui/bin/*
+editor/plugins/net.mindengine.galen.dsl.ui/target/*
+editor/tests/net.mindengine.galen.dsl.tests/bin/*
+editor/tests/net.mindengine.galen.dsl.tests/target/*
