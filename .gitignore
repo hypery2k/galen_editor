@@ -43,3 +43,5 @@ editor/plugins/net.mindengine.galen.dsl.ui/bin/*
 editor/plugins/net.mindengine.galen.dsl.ui/target/*
 editor/tests/net.mindengine.galen.dsl.tests/bin/*
 editor/tests/net.mindengine.galen.dsl.tests/target/*
+
+editor/samples/dev/.metadata/*

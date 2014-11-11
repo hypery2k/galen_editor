@@ -3,51 +3,84 @@ import 'http://www.eclipse.org/emf/2002/Ecore' as ecore
 import 'http://www.eclipse.org/xtext/xbase/Xbase' as xbase
 generate specLang "http://www.mindengine.net/galen/SpecLang"
 
-Test:
-	(tests+=Model)*;
-
 Model:
-	(definitionImports+=SpecFileRef)*
-	'===================================================' (WS)* NL
-	(definitions+=Definition)+
-	'===================================================' (WS)* NL
-	(expectationImports+=SpecFileRef)*
+//(definitionImports+=SpecFileRef)*
+	DEF_SEPERATOR NL
+	(definitions+=Definition)+ 
+	DEF_SEPERATOR NL
+	(expectationImports+=SpecFileRef)* 
 	(expectations+=Expectation)+;
 
 Definition:
-	placeholder=ID DEF_SUFFIX (WS)+ selectorType=SelectorType (WS)+ selectorValue=SelectorValue (WS)* NL;
+	NL? placeholder=PLACEHOLDER WS selectorType=SelectorType WS selectorValue=SelectorValue NL;
+
+
+SpecFileRef:
+	PROCESSOR_STATEMENT filename=ID '.spec';
+
+SelectorValue:
+	XPATH_SELECTOR | CSS_SELECTOR | ID_SELECTOR;
+
+Expectation:
+	(label=EXPECTATION_LABEL | '^') '|' WS? ('*' | tags+=ID (WS (',' WS? tags+=ID)*))? NL
+	SPEC_SEPERATOR NL
+	placeholderRef=PLACEHOLDER NL
+	(specs+=TestSpec);
+
+TestSpec:
+	WS TestSpecType NL;
 
 SelectorType:
 	('css' | 'xpath' | 'id');
-
-SpecFileRef:
-	'@@' WS filename=ID '.spec' (WS)* NL;
-
-SelectorValue:
-	'//' TEXT (WS TEXT)* | '#' TEXT | HTML_ELEMENT;
-
-Expectation:
-	'@' WS (name=TEXT | '^') WS '|' WS tags+=ID (',' tags+=ID)*
-	'---------------------------------------------------'
-	placeholderRef=[Definition] INST_SUFFIX NL
-	(specs+=TestSpec)
-	NL;
-
-TestSpec:
-	type=TestSpecType ':' (checks+=Check)+;
-
+	
 TestSpecType:
-	('near' | 'below' | 'above ' | 'inside' | 'width' | 'height' | 'aligned' | 'text' | 'center' | 'absent' | 'contains' |
-	'on' | 'component' | 'color scheme');
+	('near:'| 'below:' | 'above:' |  ('width:' | 'height:') SIZE | 'aligned:' | 'text:' | 'center:' | 'visible:' | 'absent:' | 
+	'inside' WS ('partly')?':' WS PLACEHOLDER WS Position (',' WS Position)* |
+	'contains' WS ('partly')?':'WS PLACEHOLDER (','WS PLACEHOLDER)* |
+	'on'(WS ('top left'|'bottom left'|'top right'|'bottom right'))?':' | 
+	'component:' | 
+	'color scheme:');
 
-Check:
-	WS TEXT*;
+Position:
+	(INT WS 'to' WS)? INT+ (WS? 'px' WS Placement) 
+;
+Placement:
+	( 'top' | 'bottom' | 'left' | 'right' ) ( 'top' | 'bottom' | 'left' | 'right' )?
+;
 
-terminal HTML_ELEMENT:
-	('a'..'z' | 'A'..'Z')+;
+terminal PROCESSOR_STATEMENT:
+	'@@'
+;
+	
+terminal DEF_SEPERATOR:
+	'='+
+;	
+
+terminal SPEC_SEPERATOR:
+	'-'+
+;
+	
+terminal SIZE:
+	WS ( ('<'|'>')? (INT WS 'to' WS)? INT+ (WS? 'px' |  '%' WS  ('of' WS PLACEHOLDER('/height'|'/width'))?))
+;
+
+terminal XPATH_SELECTOR:
+	'//' ID;
+
+terminal CSS_SELECTOR:
+	('.') ID | (':') ID | ('*') ID | ('a'..'z' | 'A'..'Z')+;
+
+terminal ID_SELECTOR:
+	'#' ID;
+
+terminal EXPECTATION_LABEL:
+	'@' WS ('a'..'z' | 'A'..'Z' | '-' | '_' | WS )+;
+
+terminal PLACEHOLDER:
+	('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-'| '*')*;
 
 terminal HEX_NUMBER:
-	'#' ('a'..'f' | 'A'..'F' | '0'..'9')*;
+	'#' ('a'..'z' | 'A'..'Z' | '0'..'9')*;
 
 terminal INT returns ecore::EInt:
 	('-')? ('0'..'9')+;
@@ -55,22 +88,16 @@ terminal INT returns ecore::EInt:
 terminal REAL returns ecore::EDouble:
 	('-')? ('0'..'9')+ '.' ('0'..'9')+;
 
-terminal TEXT:
-	.;
-
 terminal ID:
 	('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '_' | '-' | '0'..'9')*;
 
-terminal DEF_SUFFIX:
-	('a'..'z' | '-*')*;
-
-terminal INST_SUFFIX:
-	('-' '0'..'9' | '-*' | '-@')*;
-
 terminal WS:
 	(' ' | '\t')+;
+	
 
-terminal NL:
-// New line on DOS or Unix 
-	'\r'? '\n';
+terminal SL_COMMENT 	: '# ' !('\n'|'\r')* ('\r'? '\n')?;
+
+// New line on DOS or Unix
+terminal NL: 
+	('\r'? '\n')+;
 
