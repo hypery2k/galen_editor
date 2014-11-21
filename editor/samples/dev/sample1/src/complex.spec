@@ -47,4 +47,4 @@ content
 -------------------------- 
 content 
     width :  70 to 100% of screen/width 
-    inside :screen  300 to 320 px  left 
+    inside :screen  300 to 320 px  left
