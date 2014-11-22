@@ -31,7 +31,7 @@ scroll-content
     inside :  content  0  px left 
      
      
-@  Content use complete width on mobile  |  phone 
+@  Content use complete width on mobile  |  phone
 -------------------------- 
 content 
     width :  100% of screen/width 

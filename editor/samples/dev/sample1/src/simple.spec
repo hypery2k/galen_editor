@@ -1,25 +1,32 @@
 ==============================================================
 navbar-container	id		#navbar-absolute-top
-navbar-top-*		css		.navbar-absolute-top
+navbar-top-1		css		.navbar-absolute-top
 menubar-left		css		.sidebar-left
 content-1			css		.app-content
-screen-				css		.app-content
+app-screen			css		.app-content
 scroll-content		css		.scrollable-content
+# unused-content	css		.abccontent
 ==============================================================
 
-@ Overall layout | *
+@  Overall layout | * 
 -------------------------- 
-content-1
+content-
 	visible
 navbar-top-*
     visible
 
 
-@  Content use complete width on mobile  |  desktop, tablet
+@  Content use complete width on mobile  | mobile
 -------------------------- 
-content
+app-screen
     width:  70px
-    
+    inside: screen 10 px top left
+
+
+@  Content use complete width on mobile and desktop  |  mobile, desktop
+-------------------------- 
+app-screen
+    width:  70px
     inside: screen 10 px top left
 
 
