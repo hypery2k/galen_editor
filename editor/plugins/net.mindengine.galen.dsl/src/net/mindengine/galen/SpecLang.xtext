@@ -1,4 +1,4 @@
-grammar net.mindengine.galen.SpecLang // with org.eclipse.xtext.common.Terminals
+grammar net.mindengine.galen.SpecLang  hidden(COMMENT)// with org.eclipse.xtext.common.Terminals
 import 'http://www.eclipse.org/emf/2002/Ecore' as ecore
 //import 'http://www.eclipse.org/xtext/xbase/Xbase' as xbase
 generate specLang "http://www.mindengine.net/galen/SpecLang"
@@ -6,15 +6,19 @@ generate specLang "http://www.mindengine.net/galen/SpecLang"
 Model:
 //(definitionImports+=SpecFileRef)*
 	WS? NL?
-	DEF_SEPERATOR WS?NL
+	DEF_SEPERATOR
 	(definitions+=Definition)+ 
-	DEF_SEPERATOR WS? NL
+	DEF_SEPERATOR
 	WS? NL?
 	(expectationImports+=SpecFileRef)* 
 	(expectations+=Expectation)*;
 
 Definition:
-	NL? placeholder=ID WS selectorType=SelectorType WS selectorValue=SelectorValue NL;
+	name=DefinitionName WS selectorType=SelectorType WS selectorValue=SelectorValue NL;
+
+DefinitionName:
+	ID //('-''*' | '-'INT)
+;
 
 
 SpecFileRef:
@@ -24,44 +28,50 @@ SelectorValue:
 	XPATH_SELECTOR | CSS_SELECTOR | ID_SELECTOR;
 
 Expectation:
-	EXPECTATION_STATEMENT WS ((label=(TEXT_LABEL | '^') WS? '|' WS )? {Expectation} ('*' | (tags+=Tags (',' WS tags+=Tags)*))) WS? NL
-	SPEC_SEPERATOR WS? NL
-	(sections+=Section)+ WS?;
+	(EXPECTATION_STATEMENT WS  ExpectationDescription?  Tags WS? NL)?
+	(SPEC_SEPERATOR)?
+	(sections+=Section)+
+;
+
+ExpectationDescription:
+	TEXT_LABEL | ('^' WS?)  '|'  WS?
+;
 	
 Section:
-	placeholderRef=ID WS? NL
+	definitionReference=[Definition] WS? NL
 	(specs+=TestSpec)+;
 
 TestSpec:
-	WS TestSpecType WS? NL;
+	WS name=TestSpecType WS? NL;
 
 SelectorType:
 	('css' | 'xpath' | 'id');
 	
-TestSpecType:
-	{TestSpecType} 
+TestSpecType:	
+	{TestSpecType}
 	('near:'| 'below:' | 'above:' |  ('width:' | 'height:') size=Size | 
 	'aligned:' | 'text:' | 'center:' | 
 	'visible' | 'absent' | 
 	'inside' (WS 'partly')?':' WS container=Element WS position+=Position (',' WS position+=Position)* |
-	'contains' WS ('partly')?':'WS child=Element (','WS ID)* |
+	'contains'  (WS 'partly')?':'WS childs+=Element (','WS childs+=Element)* |
 	'on'(WS ('top left'|'bottom left'|'top right'|'bottom right'))?':' | 
 	'component:' | 
 	'color scheme:');
 	
 Element:
-	 'screen' | 'viewport' | ID
+	{Element}
+	('screen' | 'viewport' | definitionReference=[Definition])
 ;
 
 Position:
-	(INT WS 'to' WS)? INT+ WS? 'px' WS Placement
+	(INT WS? 'to' WS? INT)? INT+ WS? 'px' WS Placement
 ;
 Placement:
-	( 'top' | 'bottom' | 'left' | 'right' ) (WS ( 'top' | 'bottom' | 'left' | 'right' ) )?
+	( 'top' | 'bottom' | 'left' | 'right' ) WS ( 'top' | 'bottom' | 'left' | 'right' )?
 ;
 
 Tags:
-	ID
+	(('*') | (ID (',' WS? ID)*))
 ;
 
 Size:
@@ -78,11 +88,11 @@ terminal PROCESSOR_STATEMENT:
 ;
 	
 terminal DEF_SEPERATOR:
-	'='+
+	'='('=')+ WS? NL
 ;	
 
 terminal SPEC_SEPERATOR:
-	'-'+
+	'-'('-')+ WS? NL
 ;
 
 terminal ID_SELECTOR:
@@ -98,10 +108,10 @@ terminal INT returns ecore::EInt:
 	('-')? ('0'..'9')+;
 
 terminal ID:
-	('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '_' | '-' | '*' | '0'..'9')*;
+	('a'..'z' | 'A'..'Z' | '_' | '-' | '*' | '0'..'9')+;
 
 terminal TEXT_LABEL:
-	(ID)( ID | ' ' | '.' | '!' | '?' | ',' )+;
+	('a'..'z' | 'A'..'Z' | ' ' | '!' | '.' | '?' | ',' | '0'..'9')+;
 	 
 terminal fragment WS_F:
 	 (" ");
@@ -109,9 +119,8 @@ terminal fragment WS_F:
 terminal WS:
 	 (WS_F|'\t')+;
 
-terminal SL_COMMENT 	: '#';
+terminal COMMENT 	: '#';
 
 // New line on DOS or Unix
 terminal NL: 
 	('\r'? '\n')+;
-
