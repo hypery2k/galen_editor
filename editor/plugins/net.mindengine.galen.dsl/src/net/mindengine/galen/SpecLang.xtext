@@ -1,62 +1,71 @@
-grammar net.mindengine.galen.SpecLang  hidden(COMMENT)// with org.eclipse.xtext.common.Terminals
+grammar net.mindengine.galen.SpecLang  hidden(NL,WS,COMMENT)// with org.eclipse.xtext.common.Terminals
 import 'http://www.eclipse.org/emf/2002/Ecore' as ecore
 //import 'http://www.eclipse.org/xtext/xbase/Xbase' as xbase
 generate specLang "http://www.mindengine.net/galen/SpecLang"
 
 Model:
-//(definitionImports+=SpecFileRef)*
-	WS? NL?
-	DEF_SEPERATOR
+	(definitionImports+=SpecFileRef)*
+	'='*	
 	(definitions+=Definition)+ 
-	DEF_SEPERATOR
-	WS? NL?
+	'='*
 	(expectationImports+=SpecFileRef)* 
-	(expectations+=Expectation)*;
+	(sections+=Section)*
+;	
 
 Definition:
-	name=DefinitionName WS selectorType=SelectorType WS selectorValue=SelectorValue NL;
-
-DefinitionName:
-	ID //('-''*' | '-'INT)
-;
-
+	name=ID selectorType=SelectorType selectorValue=SelectorValue;
 
 SpecFileRef:
-	PROCESSOR_STATEMENT filename=ID '.spec';
+	'@@' filename=ID '.spec';
 
 SelectorValue:
 	XPATH_SELECTOR | CSS_SELECTOR | ID_SELECTOR;
 
-Expectation:
-	(EXPECTATION_STATEMENT WS  ExpectationDescription?  Tags WS? NL)?
-	(SPEC_SEPERATOR)?
-	(sections+=Section)+
+Section:
+	('@' SectionDescription? Tags)?
+	('-')*
+	(checks+=Check)+
+	NL
 ;
 
-ExpectationDescription:
-	TEXT_LABEL | ('^' WS?)  '|'  WS?
+SectionDescription:
+	(TEXT_LABEL | ('^') ) '|'  
 ;
 	
-Section:
-	definitionReference=[Definition] WS? NL
-	(specs+=TestSpec)+;
+Check:
+	definitionReference=[Definition]
+	(specs+=TestSpec)+
+;
 
 TestSpec:
-	WS name=TestSpecType WS? NL;
+	SizeTestSpec | 
+	VisibilityTestSpec | 
+	AlignmentTestSpec |
+	PositioningTestSpec 
+	//'component:' | 
+	//'color scheme:'
+	// 'text:' | 'center:' | 
+;
 
-SelectorType:
-	('css' | 'xpath' | 'id');
+SelectorType returns TestSpec:
+	{TestSpec} ('css' | 'xpath' | 'id')
+;
 	
-TestSpecType:	
-	{TestSpecType}
-	('near:'| 'below:' | 'above:' |  ('width:' | 'height:') size=Size | 
-	'aligned:' | 'text:' | 'center:' | 
-	'visible' | 'absent' | 
-	'inside' (WS 'partly')?':' WS container=Element WS position+=Position (',' WS position+=Position)* |
-	'contains'  (WS 'partly')?':'WS childs+=Element (','WS childs+=Element)* |
-	'on'(WS ('top left'|'bottom left'|'top right'|'bottom right'))?':' | 
-	'component:' | 
-	'color scheme:');
+SizeTestSpec returns TestSpec:
+	{TestSpec} ('width:' | 'height:') size=Size
+;
+
+
+VisibilityTestSpec returns TestSpec:
+	{TestSpec} ('visible' | 'absent')
+;
+AlignmentTestSpec returns TestSpec:
+	{TestSpec} ( 'aligned:' | ('contains'  ('partly')?) )':'childs+=Element (',' childs+=Element)* 
+;
+
+PositioningTestSpec:
+ 	{PositioningTestSpec} SPEC_ALIGNMENT ':' container=Element position+=Position (',' position+=Position)*
+;
 	
 Element:
 	{Element}
@@ -64,63 +73,39 @@ Element:
 ;
 
 Position:
-	(INT WS? 'to' WS? INT)? INT+ WS? 'px' WS Placement
-;
-Placement:
-	( 'top' | 'bottom' | 'left' | 'right' ) WS ( 'top' | 'bottom' | 'left' | 'right' )?
+	INT ('to' INT)? 'px' PLACEMENT
 ;
 
-Tags:
-	(('*') | (ID (',' WS? ID)*))
+Tags:	
+	{TEXT_LABEL} ('*' | TEXT_LABEL)
 ;
 
 Size:
 	{Size} 
-	WS ( ('<'|'>')? (INT WS 'to' WS)? INT+ (WS? 'px' |  '%' WS  ('of' WS reference=Element ('/height'|'/width'))?))
+	( ('<'|'>')? (INT 'to')? INT+ ('px' |  '%'  ('of' reference=Element ('/height'|'/width'))?))
 ;
 
-terminal EXPECTATION_STATEMENT:
-	'@'
-;
+terminal SPEC_ALIGNMENT: 'inside' ('partly')? | 'near'| 'below' | 'above' | 'on' ( 'top left'|'bottom left'|'top right'|'bottom right') ?;
 
-terminal PROCESSOR_STATEMENT:
-	'@@'
-;
-	
-terminal DEF_SEPERATOR:
-	'='('=')+ WS? NL
-;	
+terminal PLACEMENT: ( 'top' | 'bottom' | 'left' | 'right' ) ('top' | 'bottom' | 'left' | 'right' )?;
 
-terminal SPEC_SEPERATOR:
-	'-'('-')+ WS? NL
-;
+terminal ID_SELECTOR: 'id' ID;
 
-terminal ID_SELECTOR:
-	'id' ID;
+terminal XPATH_SELECTOR: '//' ID;
 
-terminal XPATH_SELECTOR:
-	'//' ID;
+terminal CSS_SELECTOR: ('#') ID | ('.') ID | (':') ID | ('*') ID | ('a'..'z' | 'A'..'Z')+;
 
-terminal CSS_SELECTOR:
-	('#') ID | ('.') ID | (':') ID | ('*') ID | ('a'..'z' | 'A'..'Z')+;
+terminal INT: ('-')? ('0'..'9')+;
 
-terminal INT returns ecore::EInt:
-	('-')? ('0'..'9')+;
+terminal ID: ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '_' | '-' | '*' | '0'..'9')+;
 
-terminal ID:
-	('a'..'z' | 'A'..'Z' | '_' | '-' | '*' | '0'..'9')+;
-
-terminal TEXT_LABEL:
-	('a'..'z' | 'A'..'Z' | ' ' | '!' | '.' | '?' | ',' | '0'..'9')+;
+terminal TEXT_LABEL: ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | ' ' | '!' | '.' | '?' | ',' | '0'..'9')+;
 	 
-terminal fragment WS_F:
-	 (" ");
+terminal fragment WS_F:  (" ");
 
-terminal WS:
-	 (WS_F|'\t')+;
+terminal WS: (WS_F | '\t')+;
 
 terminal COMMENT 	: '#';
 
 // New line on DOS or Unix
-terminal NL: 
-	('\r'? '\n')+;
+terminal NL: ('\r'? '\n')+;
