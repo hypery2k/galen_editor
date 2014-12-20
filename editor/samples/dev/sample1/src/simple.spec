@@ -1,4 +1,4 @@
-============================================================== 
+============================================================
 navbar-container	id		#navbar-absolute-top
 navbar-top-1		css		.navbar-absolute-top
 menubar-left		css		.sidebar-left
@@ -7,7 +7,17 @@ app-screen			css		.app-content
 scroll-content		css		.scrollable-content
 ==============================================================
 
-@   Overall layout   | * 
+
+navbar-top-1
+	visible
+
+@   ^ | * 
+--------------------------
+
+navbar-top-1
+	visible
+
+@   Overall layout  | *
 --------------------------
 content-*
 	visible
@@ -20,16 +30,12 @@ navbar-top-1
 --------------------------
 app-screen
 	width: 70px
-	inside: screen 10 px top left
-
+	inside: app-screen 10px
 
 @  Content use complete width on mobile and desktop  |  mobile, desktop
 --------------------------
 app-screen
 	width: 70px
-	inside: screen 10 px top left
-
-
-
-
-
+	inside: app-screen 10px
+	
+	
