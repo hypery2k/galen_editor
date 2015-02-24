@@ -1,17 +1,21 @@
-============================================================
-navbar-container	id		#navbar-absolute-top
-navbar-top-1		css		.navbar-absolute-top
+==========================================================
+navbar-container	id		navbar
+navbar-top-1		css		#navbar.navbar-absolute-top
 menubar-left		css		.sidebar-left
 content-*			css		.app-content
 app-screen			css		.app-content
 scroll-content		css		.scrollable-content
-==============================================================
+search-panel       	id      search-bar
+search-panel-input	xpath   //div[@id='search-bar']/input[@type='text']
+search-panel-button	css     #search-bar a
+============================================================
 
+# just a comment
 
 navbar-top-1
 	visible
 
-@   ^ | * 
+^ | * 
 --------------------------
 
 navbar-top-1

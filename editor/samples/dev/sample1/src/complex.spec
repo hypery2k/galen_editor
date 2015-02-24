@@ -8,7 +8,7 @@ screen-*			css		.app-content
 scroll-content		css		.scrollable-content
 ============================================================== 
 
-@  Overall layout  |   * 
+@ Overall layout  |   * 
 -------------------------- 
 content-1
 	visible
